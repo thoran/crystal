@@ -172,7 +172,7 @@ jobs:
       - run: |
           git clone https://github.com/bcardiff/distribution-scripts.git ~/distribution-scripts
           cd ~/distribution-scripts
-          git checkout b82b115c918f4c576cefb8b4f5795d1ac84771d9
+          git checkout a4da919b97e97a9a8cced8a5e8a0871d25b4c700
       # persist relevant information for build process
       - run: |
           cd ~/distribution-scripts
