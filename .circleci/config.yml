@@ -170,9 +170,9 @@ jobs:
     steps:
       # checkout specific distribution-scripts version to perform releases and nightly
       - run: |
-          git clone https://github.com/crystal-lang/distribution-scripts.git ~/distribution-scripts
+          git clone https://github.com/bcardiff/distribution-scripts.git ~/distribution-scripts
           cd ~/distribution-scripts
-          git checkout cb8f2c51a042609d7c45707ba8369b37d011037f
+          git checkout b82b115c918f4c576cefb8b4f5795d1ac84771d9
       # persist relevant information for build process
       - run: |
           cd ~/distribution-scripts
@@ -253,13 +253,17 @@ jobs:
     steps:
       - attach_workspace:
           at: /tmp/workspace
+      - checkout
+      - run: |
+          # TODO CRYSTAL_VERSION in prepare_nightly should be read from src/VERSION
+          echo "export CRYSTAL_VERSION=$(cat src/VERSION)" >> /tmp/workspace/distribution-scripts/build.env
       - run: |
           cd /tmp/workspace/distribution-scripts
 
           # How to brand it
           export VERSION=${CIRCLE_BRANCH/release\//}
           export VERSION=${VERSION/\//-}-dev
-          echo "export CRYSTAL_VERSION=$VERSION" >> build.env
+          # echo "export CRYSTAL_VERSION=$VERSION" >> build.env
           echo "export DOCKER_TAG=$VERSION" >> build.env
 
           # Build from working directory (needed for omnibus and when version does not match branch/tag)
@@ -286,7 +290,7 @@ jobs:
             cd /tmp/workspace/distribution-scripts
             source build.env
             cd linux
-            make all64 release=true
+            make compress64 release=true
       - store_artifacts:
           path: /tmp/workspace/distribution-scripts/linux/build
           destination: build
@@ -306,7 +310,7 @@ jobs:
             cd /tmp/workspace/distribution-scripts
             source build.env
             cd linux
-            make all32 release=true
+            make compress32 release=true
       - store_artifacts:
           path: /tmp/workspace/distribution-scripts/linux/build
           destination: build
@@ -357,6 +361,24 @@ jobs:
           root: /tmp/workspace/distribution-scripts/darwin/
           paths:
             - build
+
+  dist_bintray_nightly:
+    machine: true
+    steps:
+      - attach_workspace:
+          at: /tmp/workspace
+      - run:
+          no_output_timeout: 20m
+          command: |
+            cd /tmp/workspace/distribution-scripts
+            source build.env
+            cd bintray
+            ./publish-nightly.sh $CRYSTAL_VERSION $(date '+%Y-%m-%d') \
+                /tmp/workspace/build/crystal-*-linux-x86_64.tar.gz \
+                /tmp/workspace/build/crystal-*-linux-i686.tar.gz
+      - store_artifacts:
+          path: /tmp/workspace/distribution-scripts/bintray/unsigned
+          destination: bintray
 
   dist_docker:
     machine: true
@@ -773,13 +795,18 @@ workflows:
           filters: *package
           requires:
             - prepare_maintenance
-      - dist_darwin:
-          filters: *package
-          requires:
-            - prepare_maintenance
-      - dist_artifacts:
+      # - dist_darwin:
+      #     filters: *package
+      #     requires:
+      #       - prepare_maintenance
+      # - dist_artifacts:
+      #     filters: *package
+      #     requires:
+      #       - dist_linux
+      #       - dist_linux32
+      #       - dist_darwin
+      - dist_bintray_nightly:
           filters: *package
           requires:
             - dist_linux
             - dist_linux32
-            - dist_darwin
