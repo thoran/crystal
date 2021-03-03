@@ -96,7 +96,7 @@ enum HTTP::Status
     value
   end
 
-  # Returns `true` if the response status code is between 100 and 199.
+  # Returns `true` if the response status code is between 100 and 199 inclusive.
   #
   # ```
   # require "http/status"
@@ -108,7 +108,7 @@ enum HTTP::Status
     100 <= code <= 199
   end
 
-  # Returns `true` if the response status code is between 200 and 299.
+  # Returns `true` if the response status code is between 200 and 299 inclusive.
   #
   # ```
   # require "http/status"
@@ -120,7 +120,7 @@ enum HTTP::Status
     200 <= code <= 299
   end
 
-  # Returns `true` if the response status code is between 300 and 399.
+  # Returns `true` if the response status code is between 300 and 399 inclusive.
   #
   # ```
   # require "http/status"
@@ -132,7 +132,7 @@ enum HTTP::Status
     300 <= code <= 399
   end
 
-  # Returns `true` if the response status code is between 400 and 499.
+  # Returns `true` if the response status code is between 400 and 499 inclusive.
   #
   # ```
   # require "http/status"
@@ -144,7 +144,7 @@ enum HTTP::Status
     400 <= code <= 499
   end
 
-  # Returns `true` if the response status code is between 500 and 599.
+  # Returns `true` if the response status code is between 500 and 599 inclusive.
   #
   # ```
   # require "http/status"
@@ -154,6 +154,18 @@ enum HTTP::Status
   # ```
   def server_error? : Bool
     500 <= code <= 599
+  end
+
+  # Returns `true` if the response status code is between 400 and 599 inclusive.
+  #
+  # ```
+  # require "http/status"
+  #
+  # HTTP::Status::INTERNAL_SERVER_ERROR.failure? # => true
+  # HTTP::Status::SWITCH_PROXY.failure?          # => false
+  # ```
+  def failure? : Bool
+    400 <= code <= 599
   end
 
   # Returns the default status description of the given HTTP status code.

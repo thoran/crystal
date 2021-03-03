@@ -44,6 +44,16 @@ describe HTTP::Status do
     end
   end
 
+  describe "#failure?" do
+    it "returns true when given a status code greater than 399" do
+      HTTP::Status.new(400).failure?.should be_true
+    end
+
+    it "returns false unless given a status code greater than 399" do
+      HTTP::Status.new(399).failure?.should be_false
+    end
+  end
+
   describe "#redirection?" do
     it "returns true when given 3xx status code" do
       HTTP::Status.new(300).redirection?.should be_true
