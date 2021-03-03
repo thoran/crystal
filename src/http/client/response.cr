@@ -38,6 +38,11 @@ class HTTP::Client::Response
     @status.success?
   end
 
+  # Returns `true` if the response status code is higher than 299.
+  def failure?
+    !@status.failure?
+  end
+
   # Returns a convenience wrapper around querying and setting cookie related
   # headers, see `HTTP::Cookies`.
   def cookies

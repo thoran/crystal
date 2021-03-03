@@ -327,16 +327,26 @@ class HTTP::Client::Response
     end
 
     describe "success?" do
-      it "returns true for the 2xx" do
+      it "returns true for the 2xx range" do
         response = Response.new(:ok)
-
         response.success?.should eq(true)
       end
 
       it "returns false for other ranges" do
         response = Response.new(500)
-
         response.success?.should eq(false)
+      end
+    end
+
+    describe "failure?" do
+      it "returns false for the 2xx range" do
+        response = Response.new(:ok)
+        response.failure?.should eq(false)
+      end
+
+      it "returns true for other ranges" do
+        response = Response.new(500)
+        response.failure?.should eq(true)
       end
     end
   end
